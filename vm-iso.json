@@ -1,0 +1,28 @@
+[
+  {
+    "arch": "amd64",
+    "edition": "LTS",
+    "family": "Linux",
+    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "id": "linux-ubuntu-22.04",
+    "os": "Ubuntu",
+    "releaseDate": 1708032,
+    "size": 1024,
+    "url": "https://github.com/ubuntu/os/releases/download/22.04/ubuntu-22.04-desktop-amd64.iso",
+    "version": "22.04"
+  },
+  {
+    "arch": "amd64",
+    "build": "23H2",
+    "edition": "",
+    "family": "Windows",
+    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "id": "windows-11-23H2",
+    "langCode": "en-us",
+    "os": "Windows 11",
+    "releaseDate": 1708032,
+    "size": 1024,
+    "url": "https://github.com/microsoft/Windows-ISO/releases/download/23H2/en-us_windows_11_consumer_editions_version_23h2_updated_sep_2024_x64_dvd_edcefbe4.iso",
+    "version": "English"
+  }
+]

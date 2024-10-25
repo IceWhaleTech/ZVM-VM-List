@@ -15,7 +15,7 @@
     {
         "arch": "amd64",
         "edition": "",
-        "icon":"linuxmint",
+        "icon":"archlinux",
         "family": "Linux",
         "hash": "",
         "id": "linux-archlinux-24.10",
@@ -28,7 +28,7 @@
     {
         "arch": "amd64",
         "edition": "cinnamon",
-        "icon":"archlinux",
+        "icon":"linuxmint",
         "family": "Linux",
         "hash": "",
         "id": "linux-linuxmint-22-cinnamon",

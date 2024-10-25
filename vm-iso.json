@@ -1,99 +1,94 @@
 [
-  {
-    "arch": "amd64",
-    "edition": "LTS",
-    "family": "Linux",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "linux-ubuntu-22.04",
-    "os": "Ubuntu",
-    "releaseDate": 220427,
-    "size": 85121,
-    "url": "https://ubuntu.com/download/desktop/thank-you?version=24.04.1&architecture=amd64&lts=true",
-    "version": "22.04"
-  },
-  {
-    "arch": "amd64",
-    "edition": "",
-    "family": "Linux",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "linux-archlinux-24.10",
-    "os": "Arch Linux",
-    "releaseDate": 241001,
-    "size": 1173389312,
-    "url": "https://mirrors.aliyun.com/archlinux/iso/2024.10.01/archlinux-2024.10.01-x86_64.iso",
-    "version": "24.10"
-  },
-  {
-    "arch": "amd64",
-    "edition": "cinnamon",
-    "family": "Linux",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "linux-linuxmint-22-cinnamon",
-    "os": "Linux Mint",
-    "releaseDate": 220427,
-    "size": 2907832320,
-    "url": "https://mirrors.aliyun.com/linuxmint/stable/22/linuxmint-22-cinnamon-64bit.iso",
-    "version": "22"
-  },
-
-
-
-  {
-    "arch": "amd64",
-    "build": "23H2",
-    "edition": "",
-    "family": "Windows",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "windows-11-23H2-en-us",
-    "langCode": "en-us",
-    "os": "Windows 11",
-    "releaseDate": 230926,
-    "size": 7224754176,
-    "url": "https://drive.massgrave.dev/en-us_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
-    "version": "English"
-  },
-  {
-    "arch": "amd64",
-    "build": "23H2",
-    "edition": "",
-    "family": "Windows",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "windows-11-23H2-cn",
-    "langCode": "zh-cn",
-    "os": "Windows 11",
-    "releaseDate": 230926,
-    "size": 7224754176,
-    "url": "https://drive.massgrave.dev/zh-cn_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
-    "version": "Chinese"
-  },
-
-
-  {
-    "arch": "amd64",
-    "build": "22H2",
-    "edition": "",
-    "family": "Windows",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "windows-10-22H2-en-us",
-    "langCode": "en-us",
-    "os": "Windows 10",
-    "releaseDate": 220427,
-    "size": 7176140800,
-    "url": "https://drive.massgrave.dev/en-us_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
-    "version": "English"
-  },
-  {
-    "arch": "amd64",
-    "build": "22H2",
-    "edition": "",
-    "family": "Windows",
-    "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-    "id": "windows-10-22H2-cn",
-    "langCode": "zh-cn",
-    "os": "Windows 10",
-    "releaseDate": 220427,
-    "size": 7167156224,
-    "url": "https://drive.massgrave.dev/zh-cn_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
-    "version": "Chinese"
-  }
+    {
+        "arch": "amd64",
+        "edition": "LTS",
+        "family": "Linux",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "linux-ubuntu-22.04",
+        "os": "Ubuntu",
+        "releaseDate": 220427,
+        "size": 6203355136,
+        "url": "https://mirrors.ustc.edu.cn/ubuntu-releases/24.04/ubuntu-24.04.1-desktop-amd64.iso",
+        "version": "22.04"
+    },
+    {
+        "arch": "amd64",
+        "edition": "",
+        "family": "Linux",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "linux-archlinux-24.10",
+        "os": "Arch Linux",
+        "releaseDate": 241001,
+        "size": 1173389312,
+        "url": "https://mirrors.aliyun.com/archlinux/iso/2024.10.01/archlinux-2024.10.01-x86_64.iso",
+        "version": "24.10"
+    },
+    {
+        "arch": "amd64",
+        "edition": "cinnamon",
+        "family": "Linux",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "linux-linuxmint-22-cinnamon",
+        "os": "Linux Mint",
+        "releaseDate": 220427,
+        "size": 2907832320,
+        "url": "https://mirrors.aliyun.com/linuxmint/stable/22/linuxmint-22-cinnamon-64bit.iso",
+        "version": "22"
+    },
+    {
+        "arch": "amd64",
+        "build": "23H2",
+        "edition": "",
+        "family": "Windows",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "windows-11-23H2-en-us",
+        "langCode": "en-us",
+        "os": "Windows 11",
+        "releaseDate": 230926,
+        "size": 7224754176,
+        "url": "https://drive.massgrave.dev/en-us_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
+        "version": "English"
+    },
+    {
+        "arch": "amd64",
+        "build": "23H2",
+        "edition": "",
+        "family": "Windows",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "windows-11-23H2-cn",
+        "langCode": "zh-cn",
+        "os": "Windows 11",
+        "releaseDate": 230926,
+        "size": 7195955200,
+        "url": "https://drive.massgrave.dev/zh-cn_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
+        "version": "Chinese"
+    },
+    {
+        "arch": "amd64",
+        "build": "22H2",
+        "edition": "",
+        "family": "Windows",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "windows-10-22H2-en-us",
+        "langCode": "en-us",
+        "os": "Windows 10",
+        "releaseDate": 220427,
+        "size": 7176140800,
+        "url": "https://drive.massgrave.dev/en-us_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
+        "version": "English"
+    },
+    {
+        "arch": "amd64",
+        "build": "22H2",
+        "edition": "",
+        "family": "Windows",
+        "hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "id": "windows-10-22H2-cn",
+        "langCode": "zh-cn",
+        "os": "Windows 10",
+        "releaseDate": 220427,
+        "size": 7167156224,
+        "url": "https://drive.massgrave.dev/zh-cn_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
+        "version": "Chinese"
+    }
 ]

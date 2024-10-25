@@ -3,7 +3,7 @@
         "arch": "amd64",
         "edition": "Desktop",
         "family": "Linux",
-        "icon":"linux",
+        "icon":"ubuntu",
         "hash": "",
         "id": "linux-ubuntu-22.04",
         "os": "Ubuntu",
@@ -15,7 +15,7 @@
     {
         "arch": "amd64",
         "edition": "",
-        "icon":"linux",
+        "icon":"linuxmint",
         "family": "Linux",
         "hash": "",
         "id": "linux-archlinux-24.10",
@@ -28,7 +28,7 @@
     {
         "arch": "amd64",
         "edition": "cinnamon",
-        "icon":"linux",
+        "icon":"archlinux",
         "family": "Linux",
         "hash": "",
         "id": "linux-linuxmint-22-cinnamon",

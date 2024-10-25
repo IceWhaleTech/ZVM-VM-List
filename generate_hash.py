@@ -3,10 +3,18 @@ import requests
 import hashlib
 imageList = []
 
-# 从vm-iso.json中读取镜像列表
-with open('vm-iso.json', 'r') as f:
-    imageList = json.load(f)
 
+def loadImageList():
+    global imageList
+    with open('vm-iso.json', 'r') as f:
+        imageList = json.load(f)
+
+def saveImageList():
+    global imageList
+    with open('vm-iso.json', 'w') as f:
+        json.dump(imageList, f, indent=4)
+
+loadImageList()
 
 for image in imageList:
     response = requests.head(image['url'])
@@ -25,4 +33,7 @@ for image in imageList:
 
     # generate hash
     hash = hashlib.sha256(open(temp_file, 'rb').read()).hexdigest()
-
+    
+    # compute once save once
+    image['hash'] = hash
+    saveImageList()

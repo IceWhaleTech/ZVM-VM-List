@@ -1,8 +1,9 @@
 [
     {
         "arch": "amd64",
-        "edition": "LTS",
+        "edition": "Desktop",
         "family": "Linux",
+        "icon":"linux",
         "hash": "",
         "id": "linux-ubuntu-22.04",
         "os": "Ubuntu",
@@ -14,6 +15,7 @@
     {
         "arch": "amd64",
         "edition": "",
+        "icon":"linux",
         "family": "Linux",
         "hash": "",
         "id": "linux-archlinux-24.10",
@@ -26,6 +28,7 @@
     {
         "arch": "amd64",
         "edition": "cinnamon",
+        "icon":"linux",
         "family": "Linux",
         "hash": "",
         "id": "linux-linuxmint-22-cinnamon",
@@ -37,8 +40,9 @@
     },
     {
         "arch": "amd64",
-        "build": "23H2",
-        "edition": "",
+        "build": "11.0.23631",
+        "icon":"windows",
+        "edition": "Multi-Edition",
         "family": "Windows",
         "hash": "",
         "id": "windows-11-23H2-en-us",
@@ -47,12 +51,13 @@
         "releaseDate": 230926,
         "size": 7224754176,
         "url": "https://drive.massgrave.dev/en-us_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
-        "version": "English"
+        "version": "23H2"
     },
     {
         "arch": "amd64",
-        "build": "23H2",
-        "edition": "",
+        "build": "11.0.23631",
+        "icon":"windows",
+        "edition": "Multi-Edition",
         "family": "Windows",
         "hash": "",
         "id": "windows-11-23H2-cn",
@@ -61,12 +66,13 @@
         "releaseDate": 230926,
         "size": 7195955200,
         "url": "https://drive.massgrave.dev/zh-cn_windows_11_consumer_editions_version_23h2_updated_oct_2024_x64_dvd_4728d672.iso",
-        "version": "Chinese"
+        "version": "23H2"
     },
     {
-        "arch": "amd64",
-        "build": "22H2",
-        "edition": "",
+        "arch": "amd64",        
+        "icon":"windows",
+        "build": "10.0.22621",
+        "edition": "Multi-Edition",
         "family": "Windows",
         "hash": "",
         "id": "windows-10-22H2-en-us",
@@ -75,12 +81,13 @@
         "releaseDate": 220427,
         "size": 7176140800,
         "url": "https://drive.massgrave.dev/en-us_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
-        "version": "English"
+        "version": "22H2"
     },
     {
         "arch": "amd64",
-        "build": "22H2",
-        "edition": "",
+        "icon":"windows",
+        "build": "10.0.22621",
+        "edition": "Multi-Edition",
         "family": "Windows",
         "hash": "",
         "id": "windows-10-22H2-cn",
@@ -89,6 +96,6 @@
         "releaseDate": 220427,
         "size": 7167156224,
         "url": "https://drive.massgrave.dev/zh-cn_windows_10_consumer_editions_version_22h2_updated_oct_2024_x64_dvd_d0cfb2e9.iso",
-        "version": "Chinese"
+        "version": "22H2"
     }
 ]

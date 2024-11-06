@@ -8,8 +8,8 @@
         "id": "linux-ubuntu-22.04",
         "os": "Ubuntu",
         "releaseDate": 220427,
-        "size": 6203355136,
-        "url": "https://mirrors.ustc.edu.cn/ubuntu-releases/24.04/ubuntu-24.04.1-desktop-amd64.iso",
+        "size": 4762707968,
+        "url": "https://ftp.halifax.rwth-aachen.de/ubuntu-releases/22.04/ubuntu-22.04.5-desktop-amd64.iso",
         "version": "22.04"
     },
     {
@@ -18,12 +18,12 @@
         "icon": "archlinux",
         "family": "Linux",
         "hash": "",
-        "id": "linux-archlinux-24.10",
+        "id": "linux-archlinux-24.11",
         "os": "Arch Linux",
-        "releaseDate": 241001,
-        "size": 1173389312,
-        "url": "https://mirrors.aliyun.com/archlinux/iso/2024.10.01/archlinux-2024.10.01-x86_64.iso",
-        "version": "24.10"
+        "releaseDate": 241101,
+        "size": 1210089472,
+        "url": "https://ftp.spline.inf.fu-berlin.de/mirrors/archlinux/iso/2024.11.01/archlinux-2024.11.01-x86_64.iso",
+        "version": "24.11"
     },
     {
         "arch": "amd64",
@@ -31,12 +31,12 @@
         "icon": "linuxmint",
         "family": "Linux",
         "hash": "",
-        "id": "linux-linuxmint-22-cinnamon",
+        "id": "linux-linuxmint-21.2-cinnamon",
         "os": "Linux Mint",
-        "releaseDate": 220427,
-        "size": 2907832320,
-        "url": "https://mirrors.aliyun.com/linuxmint/stable/22/linuxmint-22-cinnamon-64bit.iso",
-        "version": "22"
+        "releaseDate": 210227,
+        "size": 3026413568,
+        "url": "https://ftp.fau.de/mint/iso/stable/21.2/linuxmint-21.2-cinnamon-64bit.iso",
+        "version": "21.2"
     },
     {
         "arch": "amd64",
@@ -48,7 +48,7 @@
         "os": "Debian",
         "releaseDate": 240831,
         "size": 3994091520,
-        "url": "https://mirrors.163.com/debian-cd/12.7.0/amd64/iso-dvd/debian-12.7.0-amd64-DVD-1.iso",
+        "url": "https://cdimage.debian.org/images/release/current/amd64/iso-dvd/debian-12.7.0-amd64-DVD-1.iso",
         "version": "12.7"
     },
     {

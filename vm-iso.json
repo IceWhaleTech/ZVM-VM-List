@@ -1,7 +1,7 @@
 [
     {
         "arch": "amd64",
-        "edition": "generic",
+        "edition": "Generic",
         "icon": "homeassistant",
         "family": "Linux",
         "hash": "",
@@ -14,7 +14,7 @@
     },
     {
         "arch": "amd64",
-        "edition": "workstation",
+        "edition": "Workstation",
         "icon": "fedora",
         "family": "Linux",
         "hash": "",
@@ -42,7 +42,7 @@
     },
     {
         "arch": "amd64",
-        "edition": "desktop",
+        "edition": "Desktop",
         "icon": "debian",
         "family": "Linux",
         "hash": "",
@@ -85,7 +85,7 @@
     },
     {
         "arch": "amd64",
-        "edition": "cinnamon",
+        "edition": "Cinnamon",
         "icon": "linuxmint",
         "family": "Linux",
         "hash": "",

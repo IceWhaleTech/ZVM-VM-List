@@ -42,15 +42,15 @@
     },
     {
         "arch": "amd64",
-        "edition": "Desktop",
+        "edition": "Net Install",
         "icon": "debian",
         "family": "Linux",
         "hash": "",
         "id": "linux-debian-12-7",
         "os": "Debian",
         "releaseDate": 240831,
-        "size": 3994091520,
-        "url": "https://cdimage.debian.org/images/release/current/amd64/iso-dvd/debian-12.7.0-amd64-DVD-1.iso",
+        "size": 661651456,
+        "url": "https://cdimage.debian.org/images/release/current/amd64/iso-cd/debian-12.8.0-amd64-netinst.iso",
         "version": "12.7"
     },
     {

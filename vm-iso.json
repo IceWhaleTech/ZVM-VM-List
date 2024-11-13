@@ -1,19 +1,6 @@
 [
     {
         "arch": "amd64",
-        "edition": "Generic",
-        "icon": "homeassistant",
-        "family": "Linux",
-        "hash": "",
-        "id": "linux-homeassistant-13.2",
-        "os": "Home Assistant",
-        "releaseDate": 241001,
-        "size": 2907832320,
-        "url": "https://github.com/home-assistant/operating-system/releases/download/13.2/haos_generic-x86-64-13.2.img.xz",
-        "version": "13.2"
-    },
-    {
-        "arch": "amd64",
         "edition": "Workstation",
         "icon": "fedora",
         "family": "Linux",

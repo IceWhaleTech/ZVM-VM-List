@@ -15,10 +15,10 @@ def send_notification(message):
 
 def check_url(image):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     }
     try:
-        response = requests.head(image['url'], headers=headers, timeout=10)
+        response = requests.head(image['url'], headers=headers, timeout=10, allow_redirects=True)
         if response.status_code != 200:
             message = f"{image['id']} 不可用, http状态码: {response.status_code}，请来一个同学修复一下"
             send_notification(message)

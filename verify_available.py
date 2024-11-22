@@ -20,12 +20,12 @@ def check_url(image):
     try:
         response = requests.head(image['url'], headers=headers, timeout=10)
         if response.status_code != 200:
-            message = f"{image['id']} is not available"
+            message = f"{image['id']} 不可用, http状态码: {response.status_code}，请来一个同学修复一下"
             send_notification(message)
             return message
         return None
     except requests.RequestException as e:
-        message = f"{image['id']} error: {str(e)}"
+        message = f"{image['id']} 不可用, error: {str(e)}，请来一个同学修复一下"
         send_notification(message)
         return message
 

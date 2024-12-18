@@ -25,6 +25,9 @@ def check_url(image):
             return message
         return None
     except requests.RequestException as e:
+        # 如果429，不管
+        if response.status_code == 429:
+            return None
         message = f"{image['id']} 不可用, error: {str(e)}，请来一个同学修复一下"
         send_notification(message)
         return message

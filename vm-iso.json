@@ -48,7 +48,10 @@
         "releaseDate": 230926,
         "size": 5829044224,
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Chinese_Simplified_x64.iso",
-        "version": "24H2"
+        "version": "24H2",
+        "default_configuration":{
+            "disk_size": 68719476736
+        }
     },
     {
         "arch": "amd64",
@@ -81,7 +84,10 @@
         "releaseDate": 220427,
         "size": 7172648960,
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/en-us_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
-        "version": "22H2"
+        "version": "22H2",
+        "default_configuration":{
+            "disk_size": 68719476736
+        }
     },
     {
         "arch": "amd64",

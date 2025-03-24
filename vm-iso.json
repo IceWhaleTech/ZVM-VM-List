@@ -14,7 +14,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/ja-jp_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -32,7 +32,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_English_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -50,7 +50,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Chinese_Simplified_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -68,7 +68,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_French_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -86,7 +86,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/en-us_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -104,7 +104,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/ko-kr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -122,7 +122,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/es-es_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -140,7 +140,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/zh-cn_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -158,7 +158,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Spanish_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -176,7 +176,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Japanese_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -194,7 +194,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Korean_x64.iso",
         "version": "24H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {
@@ -212,7 +212,7 @@
         "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/fr-fr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration":{
-            "disk_size": 68719476736
+            "disk_size": 64000000
         }
     },
     {

@@ -279,18 +279,5 @@
         "size": 6345887744,
         "url": "https://ftp.halifax.rwth-aachen.de/ubuntu-releases/24.04/ubuntu-24.04.3-desktop-amd64.iso",
         "version": "24.04"
-    },
-    {
-        "arch": "amd64",
-        "edition": "Desktop",
-        "family": "Linux",
-        "icon": "mxlinux",
-        "hash": "",
-        "id": "linux-mxlinux-23.6",
-        "os": "Ubuntu",
-        "releaseDate": 250413,
-        "size": 2886729728,
-        "url": "https://onboardcloud.dl.sourceforge.net/project/mx-linux/Final/KDE/MX-23.6.1_KDE_x64.iso",
-        "version": "23.6"
     }
 ]

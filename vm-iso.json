@@ -234,12 +234,12 @@
         "icon": "debian",
         "family": "Linux",
         "hash": "",
-        "id": "linux-debian-12-9",
+        "id": "linux-debian-13-1",
         "os": "Debian",
-        "releaseDate": 240831,
-        "size": 661651456,
-        "url": "https://cdimage.debian.org/images/release/current/amd64/iso-cd/debian-12.9.0-amd64-netinst.iso",
-        "version": "12.9"
+        "releaseDate": 250906,
+        "size": 772059136,
+        "url": "https://cdimage.debian.org/images/release/current/arm64/iso-cd/debian-13.1.0-arm64-netinst.iso",
+        "version": "13.1"
     },
     {
         "arch": "amd64",
@@ -262,10 +262,10 @@
         "hash": "",
         "id": "linux-archlinux-25.02",
         "os": "Arch Linux",
-        "releaseDate": 250201,
-        "size": 1236303872,
-        "url": "https://ftp.spline.inf.fu-berlin.de/mirrors/archlinux/iso/2025.02.01/archlinux-2025.02.01-x86_64.iso",
-        "version": "25.02"
+        "releaseDate": 251001,
+        "size": 1519419392,
+        "url": "https://ftp.spline.inf.fu-berlin.de/mirrors/archlinux/iso/2025.10.01/archlinux-2025.10.01-x86_64.iso",
+        "version": "25.10"
     },
     {
         "arch": "amd64",
@@ -273,11 +273,24 @@
         "family": "Linux",
         "icon": "ubuntu",
         "hash": "",
-        "id": "linux-ubuntu-22.04",
+        "id": "linux-ubuntu-24.04",
         "os": "Ubuntu",
-        "releaseDate": 220427,
-        "size": 4762707968,
-        "url": "https://ftp.halifax.rwth-aachen.de/ubuntu-releases/22.04/ubuntu-22.04.5-desktop-amd64.iso",
-        "version": "22.04"
+        "releaseDate": 240427,
+        "size": 6345887744,
+        "url": "https://ftp.halifax.rwth-aachen.de/ubuntu-releases/24.04/ubuntu-24.04.3-desktop-amd64.iso",
+        "version": "24.04"
+    },
+    {
+        "arch": "amd64",
+        "edition": "Desktop",
+        "family": "Linux",
+        "icon": "mxlinux",
+        "hash": "",
+        "id": "linux-mxlinux-23.6",
+        "os": "Ubuntu",
+        "releaseDate": 250413,
+        "size": 2886729728,
+        "url": "https://onboardcloud.dl.sourceforge.net/project/mx-linux/Final/KDE/MX-23.6.1_KDE_x64.iso",
+        "version": "23.6"
     }
 ]

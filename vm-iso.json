@@ -234,12 +234,12 @@
         "icon": "debian",
         "family": "Linux",
         "hash": "",
-        "id": "linux-debian-13-1",
+        "id": "linux-debian-13-3-0",
         "os": "Debian",
-        "releaseDate": 250906,
-        "size": 772059136,
-        "url": "https://cdimage.debian.org/images/release/current/arm64/iso-cd/debian-13.1.0-arm64-netinst.iso",
-        "version": "13.1"
+        "releaseDate": 260110,
+        "size": 790626304,
+        "url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.3.0-amd64-netinst.iso",
+        "version": "13.3.0"
     },
     {
         "arch": "amd64",

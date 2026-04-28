@@ -273,11 +273,11 @@
         "family": "Linux",
         "icon": "ubuntu",
         "hash": "",
-        "id": "linux-ubuntu-24.04",
+        "id": "linux-ubuntu-26.04",
         "os": "Ubuntu",
-        "releaseDate": 260422,
-        "size": 6655619072,
-        "url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.4-desktop-amd64.iso",
-        "version": "24.04.4"
+        "releaseDate": 260423,
+        "size": 6518974464,
+        "url": "https://releases.ubuntu.com/26.04/ubuntu-26.04-desktop-amd64.iso",
+        "version": "26.04"
     }
 ]

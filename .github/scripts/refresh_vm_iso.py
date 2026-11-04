@@ -502,6 +502,7 @@ def main() -> int:
     parser.add_argument("--file", default="vm-iso.json", help="Path to vm-iso.json")
     parser.add_argument("--report", default="refresh-report.md", help="Path to markdown report")
     parser.add_argument("--check-latest", action="store_true", help="Resolve latest versions even when existing URLs are reachable")
+    parser.add_argument("--strict", action="store_true", help="Fail when any refresh errors or unresolved images remain")
     args = parser.parse_args()
 
     with open(args.file, "r", encoding="utf-8") as f:
@@ -521,7 +522,7 @@ def main() -> int:
     for line in summary["details"]:
         print(line)
 
-    return 0
+    return 1 if args.strict and (summary["failed"] or summary["unresolved"]) else 0
 
 
 if __name__ == "__main__":

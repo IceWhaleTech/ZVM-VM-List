@@ -149,7 +149,7 @@ jobs:
           if [ -z "$WINDOWS_ISO_MANIFEST_URL" ] && { [ "$SYNC_ENABLED" = "true" ] || [ "$SYNC_MODE" = "publish" ]; }; then
             export WINDOWS_ISO_MANIFEST_URL="${R2_PUBLIC_BASE_URL%/}/$R2_MANIFEST_KEY"
           fi
-          python .github/scripts/refresh_vm_iso.py --check-latest --file vm-iso.json --report "$RUNNER_TEMP/vm-iso-refresh-report.md"
+          python .github/scripts/refresh_vm_iso.py --check-latest --strict --file vm-iso.json --report "$RUNNER_TEMP/vm-iso-refresh-report.md"
 
       - name: Publish report
         if: always()
@@ -159,6 +159,7 @@ jobs:
           fi
 
       - name: Create pull request
+        id: catalog_pr
         uses: peter-evans/create-pull-request@v8
         with:
           base: ${{ github.event.repository.default_branch }}
@@ -169,3 +170,34 @@ jobs:
           body-path: ${{ runner.temp }}/vm-iso-refresh-report.md
           add-paths: |
             vm-iso.json
+
+      - name: Automatically merge validated catalog
+        if: steps.catalog_pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.catalog_pr.outputs.pull-request-number }}
+          PR_HEAD_SHA: ${{ steps.catalog_pr.outputs.pull-request-head-sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          gh pr view "$PR_NUMBER" --repo "$GH_REPO" \
+            --json author,baseRefName,files,headRefName,headRefOid,isCrossRepository \
+            > "$RUNNER_TEMP/catalog-pr.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          pr = json.loads((Path(os.environ["RUNNER_TEMP"]) / "catalog-pr.json").read_text())
+          valid = (
+              pr["author"]["is_bot"]
+              and pr["author"]["login"] in ("app/github-actions", "github-actions[bot]")
+              and pr["baseRefName"] == os.environ["DEFAULT_BRANCH"]
+              and pr["headRefName"] == "bot/refresh-vm-iso"
+              and pr["headRefOid"] == os.environ["PR_HEAD_SHA"]
+              and not pr["isCrossRepository"]
+              and [file["path"] for file in pr["files"]] == ["vm-iso.json"]
+          )
+          if not valid:
+              raise SystemExit("Refusing to merge: PR does not match the generated catalog update")
+          PY
+          gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --auto --squash \
+            --match-head-commit "$PR_HEAD_SHA"

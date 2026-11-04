@@ -283,6 +283,20 @@ class RefreshTests(unittest.TestCase):
             self.assertEqual(source.read_text(encoding="utf-8"), original)
             self.assertTrue(report.exists())
 
+    def test_strict_cli_blocks_automatic_publication_on_refresh_errors(self):
+        for failed, unresolved in ((0, 0), (1, 0), (0, 1)):
+            with self.subTest(failed=failed, unresolved=unresolved), tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / "images.json"
+                report = Path(directory) / "report.md"
+                source.write_text(json.dumps([linux_image()]), encoding="utf-8")
+                summary = {"checked": 1, "available": 1, "updated": 0, "metadata_updated": 0,
+                           "failed": failed, "unresolved": unresolved, "details": []}
+                with patch("sys.argv", ["refresh_vm_iso.py", "--strict", "--file", str(source), "--report", str(report)]), \
+                        patch.object(refresh, "refresh_images", return_value=summary), \
+                        patch("sys.stdout", new_callable=io.StringIO):
+                    self.assertEqual(refresh.main(), 1 if failed or unresolved else 0)
+                self.assertTrue(report.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

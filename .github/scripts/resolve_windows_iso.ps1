@@ -24,6 +24,9 @@ if (-not ($batchFirstUrl -is [string]) -or -not $batchFirstUrl.StartsWith("https
 $batchResults[$batchLanguages[0].code] = $batchFirstUrl
 
 foreach ($batchLanguage in ($batchLanguages | Select-Object -Skip 1)) {
+    # Each language needs separate x64 and ARM API calls. Pace the batch rather
+    # than issuing a burst of download-link requests to Microsoft's Sentinel.
+    Start-Sleep -Seconds 20
     $batchMatches = @($languages | Where-Object { $_.Name -match $batchLanguage.pattern })
     if ($batchMatches.Count -ne 1) { throw "Microsoft language selection is not unique: $($batchLanguage.code)" }
     $batchOptions = @(Get-Windows-Download-Links $winVersionId $winReleaseId $winEditionId $batchMatches[0])

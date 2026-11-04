@@ -1,4 +1,5 @@
 import hashlib
+import base64
 import importlib.util
 import io
 import json
@@ -83,7 +84,10 @@ class PublisherTests(unittest.TestCase):
             self.client.events.append(("public", url))
             return public_ok, len(self.data[lang]), "HEAD 200"
 
-        with patch.object(sync, "resolve_download", return_value="https://software.download.prss.microsoft.com/Win11_26H2_x64.iso"), \
+        def resolve(images, *_):
+            return {sync.windows_channel_key(image): "https://software.download.prss.microsoft.com/Win11_26H2_x64.iso" for image in images}
+
+        with patch.object(sync, "resolve_downloads", side_effect=resolve), \
                 patch.object(sync, "download_iso", side_effect=download) as downloader, \
                 patch.object(sync, "inspect_iso", side_effect=inspect or (lambda *_: "10.0.26300.9457")), \
                 patch.object(sync, "http_check_url", side_effect=probe), \
@@ -192,9 +196,9 @@ class PublisherTests(unittest.TestCase):
 
     def test_failed_language_preflight_does_not_transfer_or_read_back_existing_isos(self):
         self.client.put(sync.object_key(self.images[0], self.source), self.data["en-us"])
-        with patch.object(sync, "resolve_download", side_effect=sync.SyncError("HTTP 503")), \
+        with patch.object(sync, "resolve_downloads", side_effect=sync.SyncError("HTTP 503")), \
                 patch.object(sync, "download_iso") as download, patch.object(self.store, "verify_bytes") as verify, \
-                patch("sys.stdout", new_callable=io.StringIO), self.assertRaisesRegex(sync.SyncError, "fr-fr.*HTTP 503"):
+                patch("sys.stdout", new_callable=io.StringIO), self.assertRaisesRegex(sync.SyncError, "HTTP 503"):
             sync.publish_batch(self.images, self.source, sync.DEFAULT_PUBLIC_BASE, self.store, {}, "Fido.ps1", "powershell.exe")
         download.assert_not_called()
         verify.assert_not_called()
@@ -298,13 +302,35 @@ class DiscoveryTests(unittest.TestCase):
     def test_download_preflight_checks_all_languages_and_reuses_resolved_urls(self):
         images = [windows_image("en-us"), windows_image("fr-fr")]
         url = "https://software.download.prss.microsoft.com/Win11_26H2_x64.iso?token=secret"
-        with patch.object(sync, "resolve_download", return_value=url) as resolve, \
+        resolved = {sync.windows_channel_key(image): url for image in images}
+        with patch.object(sync, "resolve_downloads", return_value=resolved) as resolve, \
                 patch.object(sync, "http_check_url", return_value=(True, 9000, "HEAD 200")), \
                 patch("sys.stdout", new_callable=io.StringIO) as output:
             urls = sync.check_downloads(images, sync.Source("26H2", 260929, {}), "Fido.ps1", "powershell.exe")
         self.assertEqual(set(urls), {sync.windows_channel_key(image) for image in images})
-        self.assertEqual(resolve.call_count, 2)
+        self.assertEqual(resolve.call_count, 1)
+        self.assertEqual(resolve.call_args.args[0], images)
         self.assertNotIn("token=secret", output.getvalue())
+
+    def test_batch_resolver_uses_one_powershell_session_and_validates_every_returned_url(self):
+        images = [windows_image("en-us"), windows_image("zh-cn")]
+        url = "https://software.download.prss.microsoft.com/Windows11_Client_x64_en-us_26300_9457.iso?token=secret"
+        source = sync.Source("26H2", 260929, {})
+        with tempfile.TemporaryDirectory() as directory:
+            fido = Path(directory) / "Fido.ps1"
+            fido.touch()
+            for output in ({"en-us": url, "zh-cn": url}, {"en-us": url}, {"en-us": url, "zh-cn": "https://example.com/image.iso"}):
+                with self.subTest(languages=list(output)), patch.object(sync, "run_powershell", return_value=json.dumps(output)) as run:
+                    if len(output) == 2 and "example.com" not in output["zh-cn"]:
+                        result = sync.resolve_downloads(images, source, fido, "powershell.exe")
+                        self.assertEqual(set(result), {sync.windows_channel_key(image) for image in images})
+                        self.assertEqual(run.call_count, 1)
+                        args = run.call_args.args[1]
+                        payload = json.loads(base64.b64decode(args[args.index("-RequestBase64") + 1]))
+                        self.assertEqual([entry["code"] for entry in payload["languages"]], ["en-us", "zh-cn"])
+                    else:
+                        with self.assertRaises(sync.SyncError):
+                            sync.resolve_downloads(images, source, fido, "powershell.exe")
 
     def test_missing_configuration_names_only_the_missing_setting(self):
         with patch.dict(os.environ, {
@@ -371,7 +397,7 @@ class DiscoveryTests(unittest.TestCase):
             with patch("sys.argv", ["sync_windows_iso.py", "--dry-run", "--check-downloads", "--file", str(catalog), "--report", str(report)]), \
                     patch.object(sync, "discover_source", return_value=sync.Source("26H2", 260929, {"en-us": "a" * 64})), \
                     patch.object(sync, "create_store") as store, patch.object(sync, "download_iso") as download, \
-                    patch.object(sync, "resolve_download", return_value="https://software.download.prss.microsoft.com/Win11_26H2_x64.iso?token=secret"), \
+                    patch.object(sync, "resolve_downloads", return_value={sync.windows_channel_key(windows_image()): "https://software.download.prss.microsoft.com/Win11_26H2_x64.iso?token=secret"}), \
                     patch.object(sync, "http_check_url", return_value=(True, 9000, "HEAD 200")), \
                     patch("sys.stdout", new_callable=io.StringIO):
                 self.assertEqual(sync.main(), 0)

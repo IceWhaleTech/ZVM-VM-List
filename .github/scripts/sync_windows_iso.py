@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Discover official Windows 11 ISOs and publish verified language batches to R2."""
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -182,34 +183,48 @@ def run_powershell(script, args, executable="powershell.exe"):
     return result.stdout.strip().lstrip("\ufeff")
 
 
-def resolve_download(image, source, fido_script, powershell):
+def resolve_downloads(images, source, fido_script, powershell):
+    if not images:
+        return {}
     if not Path(fido_script).is_file():
         raise SyncError(f"Fido script missing; check out pbatard/Fido at {FIDO_COMMIT}")
-    output = run_powershell(fido_script, [
-        "-Win", "11", "-Rel", source.version, "-Ed", "Home/Pro/Edu",
-        "-Lang", LANGUAGES[image["langCode"].lower()][1],
-        "-Arch", "^x64$", "-PlatformArch", "x64", "-GetUrl",
+    request = {"version": source.version, "languages": [
+        {"code": image["langCode"].lower(), "pattern": LANGUAGES[image["langCode"].lower()][1]}
+        for image in images
+    ]}
+    payload = base64.b64encode(json.dumps(request).encode("utf-8")).decode("ascii")
+    output = run_powershell(Path(__file__).with_name("resolve_windows_iso.ps1"), [
+        "-FidoPath", str(Path(fido_script).resolve()), "-RequestBase64", payload,
     ], powershell)
-    urls = re.findall(r"https://[^\s<>\"']+", output)
-    if len(urls) != 1:
-        raise SyncError("Fido did not return exactly one download URL")
-    return validate_microsoft_url(urls[0], source.version)
+    try:
+        urls = json.loads(output)
+    except ValueError as exc:
+        raise SyncError("Fido did not return a valid batch of download URLs") from exc
+    expected = {image["langCode"].lower() for image in images}
+    if not isinstance(urls, dict) or set(urls) != expected or not all(isinstance(url, str) for url in urls.values()):
+        raise SyncError("Fido did not return exactly one URL for every requested language")
+    return {windows_channel_key(image): validate_microsoft_url(urls[image["langCode"].lower()], source.version)
+            for image in images}
+
+
+def resolve_download(image, source, fido_script, powershell):
+    return resolve_downloads([image], source, fido_script, powershell)[windows_channel_key(image)]
 
 
 def check_downloads(images, source, fido_script, powershell):
-    urls = {}
+    if images:
+        print(f"[preflight] {source.version}: resolving {len(images)} Microsoft downloads in one session", flush=True)
+    urls = resolve_downloads(images, source, fido_script, powershell)
     for image in images:
         lang = image["langCode"]
-        print(f"[preflight] {source.version} {lang}: resolving Microsoft download", flush=True)
         try:
-            url = resolve_download(image, source, fido_script, powershell)
+            url = urls[windows_channel_key(image)]
             ok, size, _ = http_check_url(url)
             if not ok or not size or size <= 0:
                 raise SyncError("Microsoft ISO download link is unavailable or has no valid byte count")
         except SyncError as exc:
             raise SyncError(f"Microsoft download preflight failed for {lang}: {exc}") from exc
         print(f"[preflight] {lang}: {unquote(urlsplit(url).path).rsplit('/', 1)[-1]} ({size} bytes)", flush=True)
-        urls[windows_channel_key(image)] = url
     return urls
 
 

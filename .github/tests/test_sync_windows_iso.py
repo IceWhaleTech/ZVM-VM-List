@@ -311,12 +311,23 @@ class ReadbackTests(unittest.TestCase):
         self.assertTrue(body.closed)
 
     def test_persistent_stream_failure_is_bounded_and_does_not_publish(self):
-        with patch.object(self.client, "get_object", side_effect=TimeoutError("https://example.com/?secret=hidden")) as get, \
+        class ReadTimeoutError(TimeoutError):
+            response = None
+
+        with patch.object(self.client, "get_object", side_effect=ReadTimeoutError("https://example.com/?secret=hidden")) as get, \
                 patch.object(sync.time, "sleep"), self.assertRaises(sync.SyncError) as error:
             self.verify()
         self.assertLessEqual(get.call_count, 3 * sync.READBACK_WORKERS)
         self.assertIn("TimeoutError", str(error.exception))
         self.assertNotIn("hidden", str(error.exception))
+
+    def test_transport_error_with_none_response_is_not_a_missing_object(self):
+        error = TimeoutError("network read failed")
+        for response in (None, {"Error": None}, "not an S3 response"):
+            error.response = response
+            with self.subTest(response=response), patch.object(self.client, "head_object", side_effect=error), \
+                    self.assertRaisesRegex(sync.SyncError, "Unable to inspect R2 ISO object"):
+                self.store.head("test.iso")
 
 
 class DiscoveryTests(unittest.TestCase):

@@ -299,9 +299,14 @@ def candidate_entry(image, source, public_base, head):
     return entry
 
 
+def s3_error_code(exc):
+    response = getattr(exc, "response", None)
+    error = response.get("Error") if isinstance(response, dict) else None
+    return str(error.get("Code") or "") if isinstance(error, dict) else ""
+
+
 def missing_object(exc):
-    response = getattr(exc, "response", {})
-    return response.get("Error", {}).get("Code") in ("NoSuchKey", "NotFound", "404")
+    return s3_error_code(exc) in ("NoSuchKey", "NotFound", "404")
 
 
 class R2Store:
@@ -361,7 +366,7 @@ class R2Store:
             except SyncError:
                 raise
             except Exception as exc:
-                code = str(getattr(exc, "response", {}).get("Error", {}).get("Code", ""))
+                code = s3_error_code(exc)
                 permanent = code in ("AccessDenied", "InvalidAccessKeyId", "SignatureDoesNotMatch", "PreconditionFailed", "412", "NoSuchKey", "404")
                 if permanent or attempt == 2:
                     reason = re.sub(r"[^a-zA-Z0-9_-]", "", code)[:80] or type(exc).__name__

@@ -1,6 +1,7 @@
-# The project is for
+# ZimaOS VM ISO List
 
-# How maintainer the project
-1. verify the source is available
-2. generate the size of the source
-3. generate the hash of the source
+A catalog of Windows and Linux installation images for ZimaOS virtual machines.
+
+**[View vm-iso.json](vm-iso.json)** · **[Download JSON](https://raw.githubusercontent.com/IceWhaleTech/ZVM-VM-List/main/vm-iso.json)**
+
+Each entry includes the operating system, version, architecture, language, download URL, and file size.

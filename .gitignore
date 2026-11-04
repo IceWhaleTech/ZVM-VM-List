@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.tools/
+*.iso
+.env
+.env.*
+/task_plan.md
+/findings.md
+/progress.md
+/refresh-report.md
+/windows-sync-report.json

@@ -11,7 +11,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 7040065536,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/ja-jp_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/ja-jp_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -29,7 +29,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5819484160,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_English_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_English_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -47,7 +47,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5829044224,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Chinese_Simplified_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_Chinese_Simplified_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -65,7 +65,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5835923456,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_French_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_French_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -83,7 +83,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 7172648960,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/en-us_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/en-us_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -101,7 +101,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 6840635392,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/ko-kr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/ko-kr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -119,7 +119,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 7186638848,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/es-es_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/es-es_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -137,7 +137,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 7170504704,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/zh-cn_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/zh-cn_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -155,7 +155,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5823377408,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Spanish_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_Spanish_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -173,7 +173,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5751373824,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Japanese_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_Japanese_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -191,7 +191,7 @@
         "os": "Windows 11",
         "releaseDate": 230926,
         "size": 5554214912,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win11/Win11_24H2_Korean_x64.iso",
+        "url": "https://vm-iso.zimaos.com/win11/Win11_24H2_Korean_x64.iso",
         "version": "24H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -209,7 +209,7 @@
         "os": "Windows 10",
         "releaseDate": 220427,
         "size": 7200272384,
-        "url": "https://pub-8750dd921c71478ebc2b45493e302eb5.r2.dev/win10/fr-fr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
+        "url": "https://vm-iso.zimaos.com/win10/fr-fr_windows_10_consumer_editions_version_22h2_updated_nov_2024_x64_dvd_3eeacab9.iso",
         "version": "22H2",
         "default_configuration": {
             "disk_size": 64000000000
@@ -221,12 +221,12 @@
         "icon": "fedora",
         "family": "Linux",
         "hash": "",
-        "id": "linux-fedora-41",
+        "id": "linux-fedora-45",
         "os": "Fedora",
         "releaseDate": 241001,
-        "size": 2458187776,
-        "url": "https://download.fedoraproject.org/pub/fedora/linux/releases/41/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-41-1.4.iso",
-        "version": "41"
+        "size": 2925092864,
+        "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Workstation/x86_64/iso/Fedora-Workstation-Live-45-1.4.x86_64.iso",
+        "version": "45"
     },
     {
         "arch": "amd64",
@@ -234,12 +234,12 @@
         "icon": "debian",
         "family": "Linux",
         "hash": "",
-        "id": "linux-debian-13-4-0",
+        "id": "linux-debian-13-7-0",
         "os": "Debian",
-        "releaseDate": 260422,
-        "size": 790626304,
-        "url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.4.0-amd64-netinst.iso",
-        "version": "13.4.0"
+        "releaseDate": 261104,
+        "size": 792723456,
+        "url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.7.0-amd64-netinst.iso",
+        "version": "13.7.0"
     },
     {
         "arch": "amd64",
@@ -247,12 +247,12 @@
         "icon": "linuxmint",
         "family": "Linux",
         "hash": "",
-        "id": "linux-linuxmint-21.2-cinnamon",
+        "id": "linux-linuxmint-22.3-cinnamon",
         "os": "Linux Mint",
         "releaseDate": 210227,
-        "size": 3026413568,
-        "url": "https://ftp.fau.de/mint/iso/stable/21.2/linuxmint-21.2-cinnamon-64bit.iso",
-        "version": "21.2"
+        "size": 3091660800,
+        "url": "https://mirrors.edge.kernel.org/linuxmint/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso",
+        "version": "22.3"
     },
     {
         "arch": "amd64",
@@ -260,24 +260,24 @@
         "icon": "archlinux",
         "family": "Linux",
         "hash": "",
-        "id": "linux-archlinux-25.10",
+        "id": "linux-archlinux-26.11",
         "os": "Arch Linux",
-        "releaseDate": 260422,
-        "size": 1536851968,
-        "url": "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-x86_64.iso",
-        "version": "25.10"
+        "releaseDate": 261101,
+        "size": 1317568512,
+        "url": "https://geo.mirror.pkgbuild.com/iso/2026.11.01/archlinux-2026.11.01-x86_64.iso",
+        "version": "26.11"
     },
     {
         "arch": "amd64",
         "edition": "Desktop",
         "family": "Linux",
         "icon": "ubuntu",
-        "hash": "",
-        "id": "linux-ubuntu-26.04",
+        "hash": "19efc38dde60055b192526bfbba075ac1da23992f1b006ddd41cbd30db0d9b0c",
+        "id": "linux-ubuntu-26.10",
         "os": "Ubuntu",
         "releaseDate": 260423,
-        "size": 6518974464,
-        "url": "https://releases.ubuntu.com/26.04/ubuntu-26.04-desktop-amd64.iso",
-        "version": "26.04"
+        "size": 6615449600,
+        "url": "https://releases.ubuntu.com/stonking/ubuntu-26.10-desktop-amd64.iso",
+        "version": "26.10"
     }
 ]

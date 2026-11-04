@@ -146,11 +146,17 @@ def validate_public_base(value):
 
 def validate_microsoft_url(url, version):
     parsed = urlsplit(url)
-    name = unquote(parsed.path).lower()
-    if parsed.scheme != "https" or not parsed.hostname or not parsed.hostname.endswith(".microsoft.com"):
+    name = unquote(parsed.path).rsplit("/", 1)[-1].lower()
+    if (parsed.scheme != "https" or not parsed.hostname or not parsed.hostname.endswith(".microsoft.com")
+            or parsed.username or parsed.password):
         raise SyncError("Download URL is not an official Microsoft HTTPS URL")
-    if version.lower() not in name or not name.endswith(".iso") or "x64" not in name:
-        raise SyncError("Microsoft URL does not match the requested Windows version and x64 architecture")
+    # Microsoft also names ISOs by OS build, without the marketing release (26H2).
+    # The release-specific official SHA256 remains the authority for their contents.
+    build_name = re.fullmatch(r"windows11_client_x64_[a-z]{2}-[a-z]{2}_\d+_\d+\.iso", name)
+    release_name = version.lower() in name and name.endswith(".iso") and "x64" in name
+    if not (release_name or build_name):
+        safe_name = re.sub(r"[^a-z0-9._-]", "_", name)[:180]
+        raise SyncError(f"Unexpected Microsoft ISO filename for {version}/x64: {safe_name}")
     return url
 
 
@@ -357,8 +363,11 @@ def stage_image(image, source, public_base, store, previous, fido_script, powers
             path = Path(directory) / "image.iso"
             print(f"[download] {source.version} {image['langCode']}", flush=True)
             url = resolve_download(image, source, fido_script, powershell)
+            print(f"[source] {unquote(urlsplit(url).path).rsplit('/', 1)[-1]}", flush=True)
             size = download_iso(url, path, source, digest)
+            print(f"[verified] {image['langCode']}: Microsoft SHA256 matched ({size} bytes)", flush=True)
             build = inspect_iso(path, image, powershell)
+            print(f"[upload] {image['langCode']}: Windows build {build}", flush=True)
             store.upload(path, key, {
                 "sha256": digest, "build": build, "version": source.version,
                 "language": image["langCode"].lower(), "architecture": "amd64",

@@ -240,6 +240,24 @@ class DiscoveryTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(sync.SyncError):
                 sync.validate_microsoft_url(url, "26H2")
 
+    def test_build_named_microsoft_iso_is_accepted_without_a_marketing_version(self):
+        for name in ("Windows11_Client_x64_en-us_26300_9457.iso", "Win11_26H2_English_x64.iso"):
+            url = "https://software.download.prss.microsoft.com/dbazure/" + name + "?signed=secret"
+            with self.subTest(name=name):
+                self.assertEqual(sync.validate_microsoft_url(url, "26H2"), url)
+        for name in ("Windows11_Client_arm64_en-us_26300_9457.iso", "Windows10_Client_x64_en-us_26300_9457.iso",
+                     "Windows11_Client_x64_en-us_26300_9457.exe", "unknown_x64.iso"):
+            with self.subTest(name=name), self.assertRaises(sync.SyncError):
+                sync.validate_microsoft_url("https://software.download.prss.microsoft.com/" + name, "26H2")
+
+    def test_download_filename_error_omits_signed_query(self):
+        url = "https://software.download.prss.microsoft.com/Win11_25H2_English_x64.iso?token=not-for-logs"
+        with self.assertRaises(sync.SyncError) as error:
+            sync.validate_microsoft_url(url, "26H2")
+        self.assertIn("win11_25h2_english_x64.iso", str(error.exception))
+        self.assertNotIn("token", str(error.exception))
+        self.assertNotIn("not-for-logs", str(error.exception))
+
     def test_public_domain_is_separate_from_s3_endpoint(self):
         self.assertEqual(sync.validate_public_base("https://vm-iso.zimaos.com/"), sync.DEFAULT_PUBLIC_BASE)
         for base in ("http://vm-iso.zimaos.com", "https://account.r2.cloudflarestorage.com", "https://user:pass@iso.example.com"):
@@ -282,7 +300,7 @@ class DiscoveryTests(unittest.TestCase):
     def test_download_hash_and_size_are_checked(self):
         data = b"verified ISO bytes"
         digest = hashlib.sha256(data).hexdigest()
-        url = "https://software.download.prss.microsoft.com/Win11_26H2_English_x64.iso"
+        url = "https://software.download.prss.microsoft.com/dbazure/Windows11_Client_x64_en-us_26300_9457.iso"
         source = sync.Source("26H2", 260929, {"en-us": digest})
         with tempfile.TemporaryDirectory() as directory:
             for length, expected_hash, valid in ((len(data), digest, True), (len(data) + 1, digest, False), (len(data), "0" * 64, False)):

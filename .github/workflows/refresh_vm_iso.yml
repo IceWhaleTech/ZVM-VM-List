@@ -89,7 +89,7 @@ jobs:
               ($env:SYNC_MODE -ne "preview" -and $env:SYNC_ENABLED -eq "true")) {
             $arguments += "--publish"
           } else {
-            $arguments += "--dry-run"
+            $arguments += @("--dry-run", "--check-downloads")
           }
           python @arguments
           exit $LASTEXITCODE

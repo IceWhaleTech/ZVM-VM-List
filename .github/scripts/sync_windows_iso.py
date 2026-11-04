@@ -171,8 +171,14 @@ def run_powershell(script, args, executable="powershell.exe"):
     except (OSError, subprocess.SubprocessError) as exc:
         raise SyncError(f"PowerShell execution failed: {type(exc).__name__}") from exc
     if result.returncode:
-        # Do not expose signed URLs or arbitrary third-party output in workflow logs.
-        raise SyncError(f"{Path(script).name} failed with exit code {result.returncode}")
+        detail = "\n".join((result.stdout or "", result.stderr or ""))
+        for key, value in os.environ.items():
+            if (key.startswith(("R2_", "AWS_")) or key in ("GH_TOKEN", "GITHUB_TOKEN")) and len(value) >= 4:
+                detail = detail.replace(value, "[redacted]")
+        detail = re.sub(r"https?://[^\s<>\"']+", "[URL redacted]", detail)
+        detail = re.sub(r"\b[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\b", "[session redacted]", detail)
+        detail = re.sub(r"\s+", " ", detail).strip()[-1200:]
+        raise SyncError(f"{Path(script).name} failed with exit code {result.returncode}: {detail or 'No diagnostic output'}")
     return result.stdout.strip().lstrip("\ufeff")
 
 
@@ -188,6 +194,23 @@ def resolve_download(image, source, fido_script, powershell):
     if len(urls) != 1:
         raise SyncError("Fido did not return exactly one download URL")
     return validate_microsoft_url(urls[0], source.version)
+
+
+def check_downloads(images, source, fido_script, powershell):
+    urls = {}
+    for image in images:
+        lang = image["langCode"]
+        print(f"[preflight] {source.version} {lang}: resolving Microsoft download", flush=True)
+        try:
+            url = resolve_download(image, source, fido_script, powershell)
+            ok, size, _ = http_check_url(url)
+            if not ok or not size or size <= 0:
+                raise SyncError("Microsoft ISO download link is unavailable or has no valid byte count")
+        except SyncError as exc:
+            raise SyncError(f"Microsoft download preflight failed for {lang}: {exc}") from exc
+        print(f"[preflight] {lang}: {unquote(urlsplit(url).path).rsplit('/', 1)[-1]} ({size} bytes)", flush=True)
+        urls[windows_channel_key(image)] = url
+    return urls
 
 
 def download_iso(url, path, source, expected_hash):
@@ -353,7 +376,7 @@ def create_store(manifest_key):
     return R2Store(client, os.environ["R2_BUCKET_NAME"], manifest_key)
 
 
-def stage_image(image, source, public_base, store, previous, fido_script, powershell, work_dir):
+def stage_image(image, source, public_base, store, previous, fido_script, powershell, work_dir, download_url=None):
     key = object_key(image, source)
     digest = source.hashes[image["langCode"].lower()]
     head = store.head(key)
@@ -362,7 +385,7 @@ def stage_image(image, source, public_base, store, previous, fido_script, powers
         with tempfile.TemporaryDirectory(prefix="windows-iso-", dir=work_dir) as directory:
             path = Path(directory) / "image.iso"
             print(f"[download] {source.version} {image['langCode']}", flush=True)
-            url = resolve_download(image, source, fido_script, powershell)
+            url = download_url or resolve_download(image, source, fido_script, powershell)
             print(f"[source] {unquote(urlsplit(url).path).rsplit('/', 1)[-1]}", flush=True)
             size = download_iso(url, path, source, digest)
             print(f"[verified] {image['langCode']}: Microsoft SHA256 matched ({size} bytes)", flush=True)
@@ -389,16 +412,21 @@ def stage_image(image, source, public_base, store, previous, fido_script, powers
         and all(previous.get(field) == entry[field] for field in ("size", "build", "version", "url"))
     )
     if not already_verified:
+        print(f"[readback] {image['langCode']}: verifying R2 object SHA256", flush=True)
         store.verify_bytes(key, digest, entry["size"])
     ok, size, _ = http_check_url(entry["url"])
     if not ok or size != entry["size"]:
         raise SyncError("Public R2 download URL is unavailable or has an incorrect byte count")
+    print(f"[ready] {image['langCode']}: R2 object and public download verified", flush=True)
     return entry, state
 
 
 def publish_batch(catalog, source, public_base, store, report, fido_script, powershell, work_dir=None):
     images = select_images(catalog, source)
     existing, etag = store.read_manifest()
+    # Resolve every missing language before downloading or reading back large ISOs.
+    missing = [image for image in images if store.head(object_key(image, source)) is None]
+    downloads = check_downloads(missing, source, fido_script, powershell)
     merged = dict(existing)
     staged = []
     for image in images:
@@ -406,7 +434,8 @@ def publish_batch(catalog, source, public_base, store, report, fido_script, powe
         previous = existing.get(channel, existing.get(image["id"], {}))
         if previous and parse_tuple_version(str(previous.get("version", ""))) > parse_tuple_version(source.version):
             raise SyncError("Microsoft source is older than the published R2 manifest")
-        entry, state = stage_image(image, source, public_base, store, previous, fido_script, powershell, work_dir)
+        entry, state = stage_image(image, source, public_base, store, previous, fido_script, powershell, work_dir,
+                                   downloads.get(channel))
         if (
             previous.get("version") == entry["version"] and previous.get("build")
             and parse_tuple_version(entry["build"])[2:] < parse_tuple_version(previous["build"])[2:]
@@ -434,6 +463,7 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--publish", action="store_true", help="Download, verify, and publish a complete Windows 11 batch")
     mode.add_argument("--dry-run", action="store_true", help="Inspect metadata and show a plan without ISO downloads or R2 access (default)")
+    parser.add_argument("--check-downloads", action="store_true", help="Also resolve and probe every Microsoft download link in preview mode")
     parser.add_argument("--public-base-url", default=os.getenv("R2_PUBLIC_BASE_URL", DEFAULT_PUBLIC_BASE))
     parser.add_argument("--manifest-key", default=os.getenv("R2_MANIFEST_KEY", DEFAULT_MANIFEST_KEY))
     parser.add_argument("--fido-script", default=".tools/fido/Fido.ps1")
@@ -457,11 +487,16 @@ def main():
             publish_batch(catalog, source, public_base, create_store(args.manifest_key), report,
                           args.fido_script, args.powershell, args.work_dir)
         else:
+            downloads = check_downloads(images, source, args.fido_script, args.powershell) if args.check_downloads else {}
             report["status"] = "preview"
             report["images"] = [{
                 "channel": windows_channel_key(image), "hash": source.hashes[image["langCode"].lower()],
                 "url": public_base + "/" + quote(object_key(image, source), safe="/"),
             } for image in images]
+            if args.check_downloads:
+                for entry in report["images"]:
+                    entry["sourceFilename"] = unquote(urlsplit(downloads[entry["channel"]]).path).rsplit("/", 1)[-1]
+                    entry["sourceChecked"] = True
     except Exception as exc:
         report["status"], report["error"] = "failed", str(exc)
     text = json.dumps(report, indent=2, ensure_ascii=False) + "\n"

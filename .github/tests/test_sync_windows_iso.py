@@ -77,6 +77,8 @@ class PublisherTests(unittest.TestCase):
             return len(data)
 
         def probe(url):
+            if ".microsoft.com/" in url:
+                return True, 100, "HEAD 200"
             lang = url.split("/")[-2]
             self.client.events.append(("public", url))
             return public_ok, len(self.data[lang]), "HEAD 200"
@@ -188,6 +190,16 @@ class PublisherTests(unittest.TestCase):
         self.assertNotIn(sync.DEFAULT_MANIFEST_KEY, self.client.objects)
         self.assertTrue(any(event[0] == "public" for event in self.client.events))
 
+    def test_failed_language_preflight_does_not_transfer_or_read_back_existing_isos(self):
+        self.client.put(sync.object_key(self.images[0], self.source), self.data["en-us"])
+        with patch.object(sync, "resolve_download", side_effect=sync.SyncError("HTTP 503")), \
+                patch.object(sync, "download_iso") as download, patch.object(self.store, "verify_bytes") as verify, \
+                patch("sys.stdout", new_callable=io.StringIO), self.assertRaisesRegex(sync.SyncError, "fr-fr.*HTTP 503"):
+            sync.publish_batch(self.images, self.source, sync.DEFAULT_PUBLIC_BASE, self.store, {}, "Fido.ps1", "powershell.exe")
+        download.assert_not_called()
+        verify.assert_not_called()
+        self.assertFalse(any(event[0] in ("upload", "publish") for event in self.client.events))
+
     @unittest.skipUnless(importlib.util.find_spec("boto3"), "Windows publisher SDK is optional for Linux-only refresh")
     def test_manifest_conditions_match_real_boto3_api(self):
         import boto3
@@ -272,6 +284,28 @@ class DiscoveryTests(unittest.TestCase):
         self.assertNotIn("R2_SECRET_ACCESS_KEY", child_env)
         self.assertNotIn("AWS_ACCESS_KEY_ID", child_env)
 
+    def test_powershell_failure_keeps_useful_diagnostics_without_secrets_or_signed_urls(self):
+        result = MagicMock(returncode=3, stdout=(
+            "Error: HTTP 503 https://software.download.prss.microsoft.com/image.iso?token=signed-secret "
+            "session ID 12345678-1234-1234-1234-123456789abc"), stderr="test-cloud-secret")
+        with patch.dict(os.environ, {"R2_SECRET_ACCESS_KEY": "test-cloud-secret"}), \
+                patch.object(sync.subprocess, "run", return_value=result), self.assertRaises(sync.SyncError) as error:
+            sync.run_powershell("Fido.ps1", [])
+        self.assertIn("HTTP 503", str(error.exception))
+        for secret in ("signed-secret", "test-cloud-secret", "12345678-1234-1234-1234-123456789abc"):
+            self.assertNotIn(secret, str(error.exception))
+
+    def test_download_preflight_checks_all_languages_and_reuses_resolved_urls(self):
+        images = [windows_image("en-us"), windows_image("fr-fr")]
+        url = "https://software.download.prss.microsoft.com/Win11_26H2_x64.iso?token=secret"
+        with patch.object(sync, "resolve_download", return_value=url) as resolve, \
+                patch.object(sync, "http_check_url", return_value=(True, 9000, "HEAD 200")), \
+                patch("sys.stdout", new_callable=io.StringIO) as output:
+            urls = sync.check_downloads(images, sync.Source("26H2", 260929, {}), "Fido.ps1", "powershell.exe")
+        self.assertEqual(set(urls), {sync.windows_channel_key(image) for image in images})
+        self.assertEqual(resolve.call_count, 2)
+        self.assertNotIn("token=secret", output.getvalue())
+
     def test_missing_configuration_names_only_the_missing_setting(self):
         with patch.dict(os.environ, {
             "R2_ACCOUNT_ID": "a" * 32,
@@ -328,6 +362,24 @@ class DiscoveryTests(unittest.TestCase):
             self.assertEqual(json.loads(report.read_text())["status"], "preview")
             store.assert_not_called()
             resolver.assert_not_called()
+
+    def test_preview_can_check_real_download_boundary_without_r2_or_iso_transfer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            catalog = Path(directory) / "catalog.json"
+            report = Path(directory) / "report.json"
+            catalog.write_text(json.dumps([windows_image()]))
+            with patch("sys.argv", ["sync_windows_iso.py", "--dry-run", "--check-downloads", "--file", str(catalog), "--report", str(report)]), \
+                    patch.object(sync, "discover_source", return_value=sync.Source("26H2", 260929, {"en-us": "a" * 64})), \
+                    patch.object(sync, "create_store") as store, patch.object(sync, "download_iso") as download, \
+                    patch.object(sync, "resolve_download", return_value="https://software.download.prss.microsoft.com/Win11_26H2_x64.iso?token=secret"), \
+                    patch.object(sync, "http_check_url", return_value=(True, 9000, "HEAD 200")), \
+                    patch("sys.stdout", new_callable=io.StringIO):
+                self.assertEqual(sync.main(), 0)
+            content = report.read_text()
+            self.assertTrue(json.loads(content)["images"][0]["sourceChecked"])
+            self.assertNotIn("token=secret", content)
+            store.assert_not_called()
+            download.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -8,6 +8,9 @@ import os
 import re
 import subprocess
 import tempfile
+import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from html.parser import HTMLParser
@@ -35,6 +38,8 @@ LANGUAGES = {
     "ko-kr": ("Korean 64-bit", "^Korean$"),
 }
 CHUNK_SIZE = 8 * 1024 * 1024
+READBACK_PART_SIZE = 64 * 1024 * 1024
+READBACK_WORKERS = 4
 
 
 class SyncError(RuntimeError):
@@ -336,19 +341,60 @@ class R2Store:
         except Exception as exc:
             raise SyncError("R2 multipart ISO upload failed") from exc
 
-    def verify_bytes(self, key, expected_hash, expected_size):
-        digest, count = hashlib.sha256(), 0
-        try:
-            response = self.client.get_object(Bucket=self.bucket, Key=key)
-            body = response["Body"]
+    def read_range(self, key, start, end, size, etag):
+        for attempt in range(3):
             try:
-                while chunk := body.read(CHUNK_SIZE):
-                    digest.update(chunk)
-                    count += len(chunk)
-            finally:
-                body.close()
-        except Exception as exc:
-            raise SyncError("Unable to read back the R2 ISO for verification") from exc
+                response = self.client.get_object(
+                    Bucket=self.bucket, Key=key, Range=f"bytes={start}-{end}", IfMatch=etag,
+                )
+                body = response["Body"]
+                try:
+                    if (response.get("ContentRange") != f"bytes {start}-{end}/{size}"
+                            or response.get("ContentLength") != end - start + 1 or response.get("ETag") != etag):
+                        raise SyncError("R2 returned an unexpected byte range or object ETag")
+                    data = body.read(end - start + 2)
+                    if len(data) != end - start + 1:
+                        raise OSError("Incomplete R2 byte range")
+                    return data
+                finally:
+                    body.close()
+            except SyncError:
+                raise
+            except Exception as exc:
+                code = str(getattr(exc, "response", {}).get("Error", {}).get("Code", ""))
+                permanent = code in ("AccessDenied", "InvalidAccessKeyId", "SignatureDoesNotMatch", "PreconditionFailed", "412", "NoSuchKey", "404")
+                if permanent or attempt == 2:
+                    reason = re.sub(r"[^a-zA-Z0-9_-]", "", code)[:80] or type(exc).__name__
+                    raise SyncError(f"R2 read-back failed for bytes {start}-{end}: {reason}") from exc
+                print(f"[readback] retrying bytes {start}-{end} after {type(exc).__name__}", flush=True)
+                time.sleep(2 ** attempt)
+
+    def verify_bytes(self, key, expected_hash, expected_size, expected_etag):
+        if expected_size <= 0 or not expected_etag:
+            raise SyncError("R2 read-back requires a positive object size and an ETag")
+        digest, count, last_progress = hashlib.sha256(), 0, 0
+        starts = iter(range(0, expected_size, READBACK_PART_SIZE))
+        # Keep at most four ranges in memory and hash them in file order, even
+        # when network requests finish out of order. Retry only interrupted ranges.
+        with ThreadPoolExecutor(max_workers=READBACK_WORKERS) as pool:
+            pending = deque()
+
+            def enqueue():
+                start = next(starts, None)
+                if start is not None:
+                    end = min(start + READBACK_PART_SIZE, expected_size) - 1
+                    pending.append(pool.submit(self.read_range, key, start, end, expected_size, expected_etag))
+
+            for _ in range(READBACK_WORKERS):
+                enqueue()
+            while pending:
+                data = pending.popleft().result()
+                digest.update(data)
+                count += len(data)
+                if count - last_progress >= 1024 ** 3 or count == expected_size:
+                    print(f"[readback] {count}/{expected_size} bytes read", flush=True)
+                    last_progress = count
+                enqueue()
         if count != expected_size or digest.hexdigest() != expected_hash:
             raise SyncError("R2 read-back SHA256 or size verification failed")
 
@@ -428,7 +474,7 @@ def stage_image(image, source, public_base, store, previous, fido_script, powers
     )
     if not already_verified:
         print(f"[readback] {image['langCode']}: verifying R2 object SHA256", flush=True)
-        store.verify_bytes(key, digest, entry["size"])
+        store.verify_bytes(key, digest, entry["size"], head["ETag"])
     ok, size, _ = http_check_url(entry["url"])
     if not ok or size != entry["size"]:
         raise SyncError("Public R2 download URL is unavailable or has an incorrect byte count")

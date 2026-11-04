@@ -4,7 +4,9 @@ import importlib.util
 import io
 import json
 import os
+import re
 import tempfile
+import threading
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -31,11 +33,18 @@ class FakeS3:
             "ETag": '"' + hashlib.md5(data).hexdigest() + '"',
         }
 
-    def get_object(self, Bucket, Key):
+    def get_object(self, Bucket, Key, Range=None, IfMatch=None):
         self.events.append(("get", Key))
         if Key not in self.objects:
             raise S3Error("NoSuchKey")
         obj = self.objects[Key]
+        if IfMatch is not None and IfMatch != obj["ETag"]:
+            raise S3Error("PreconditionFailed")
+        if Range is not None:
+            start, end = map(int, re.fullmatch(r"bytes=(\d+)-(\d+)", Range).groups())
+            data = obj["data"][start:end + 1]
+            return {"Body": io.BytesIO(data), "ETag": obj["ETag"], "ContentLength": len(data),
+                    "ContentRange": f"bytes {start}-{end}/{len(obj['data'])}"}
         return {"Body": io.BytesIO(obj["data"]), "ETag": obj["ETag"]}
 
     def head_object(self, Bucket, Key):
@@ -225,6 +234,89 @@ class PublisherTests(unittest.TestCase):
             store.publish({}, None)
             store.publish({}, '"old"')
             stub.assert_no_pending_responses()
+        data = b"verified ISO bytes"
+        with Stubber(client) as stub:
+            stub.add_response("get_object", {
+                "Body": io.BytesIO(data), "ContentLength": len(data), "ETag": '"iso-etag"',
+                "ContentRange": f"bytes 0-{len(data) - 1}/{len(data)}",
+            }, {"Bucket": "test-bucket", "Key": "test.iso", "Range": f"bytes=0-{len(data) - 1}", "IfMatch": '"iso-etag"'})
+            store.verify_bytes("test.iso", hashlib.sha256(data).hexdigest(), len(data), '"iso-etag"')
+            stub.assert_no_pending_responses()
+
+
+class ReadbackTests(unittest.TestCase):
+    def setUp(self):
+        self.data = bytes(range(37))
+        self.client = FakeS3()
+        self.client.put("test.iso", self.data)
+        self.etag = self.client.objects["test.iso"]["ETag"]
+        self.store = sync.R2Store(self.client, "test-bucket")
+
+    def verify(self):
+        with patch.object(sync, "READBACK_PART_SIZE", 8), patch("sys.stdout", new_callable=io.StringIO):
+            self.store.verify_bytes("test.iso", hashlib.sha256(self.data).hexdigest(), len(self.data), self.etag)
+
+    def test_out_of_order_ranges_produce_the_original_file_hash(self):
+        get = self.client.get_object
+        second = threading.Event()
+
+        def reordered(**kwargs):
+            if kwargs["Range"] == "bytes=0-7":
+                if not second.wait(2):
+                    raise RuntimeError("Ranges were not fetched concurrently")
+            else:
+                second.set()
+            return get(**kwargs)
+
+        with patch.object(self.client, "get_object", side_effect=reordered) as request:
+            self.verify()
+        self.assertEqual({call.kwargs["Range"] for call in request.call_args_list},
+                         {"bytes=0-7", "bytes=8-15", "bytes=16-23", "bytes=24-31", "bytes=32-36"})
+        self.assertTrue(all(call.kwargs["IfMatch"] == self.etag for call in request.call_args_list))
+
+    def test_interrupted_body_retries_only_its_range_and_closes_all_bodies(self):
+        get, bodies = self.client.get_object, []
+        interrupted = False
+
+        class Interrupted(io.BytesIO):
+            def read(self, *args):
+                raise TimeoutError("signed URL must not reach logs")
+
+        def flaky(**kwargs):
+            nonlocal interrupted
+            result = get(**kwargs)
+            if kwargs["Range"] == "bytes=8-15" and not interrupted:
+                interrupted = True
+                result["Body"] = Interrupted()
+            bodies.append(result["Body"])
+            return result
+
+        with patch.object(self.client, "get_object", side_effect=flaky) as request, patch.object(sync.time, "sleep"):
+            self.verify()
+        self.assertEqual(sum(call.kwargs["Range"] == "bytes=8-15" for call in request.call_args_list), 2)
+        self.assertEqual(request.call_count, 6)
+        self.assertTrue(all(body.closed for body in bodies))
+
+    def test_changed_object_is_rejected_without_retry(self):
+        self.client.put("test.iso", b"changed")
+        with patch.object(sync.time, "sleep") as sleep, self.assertRaisesRegex(sync.SyncError, "PreconditionFailed"):
+            self.verify()
+        sleep.assert_not_called()
+
+    def test_server_ignoring_range_is_rejected_and_body_closed(self):
+        body = io.BytesIO(self.data)
+        with patch.object(self.client, "get_object", return_value={"Body": body, "ETag": self.etag, "ContentLength": len(self.data)}), \
+                self.assertRaisesRegex(sync.SyncError, "unexpected byte range"):
+            self.verify()
+        self.assertTrue(body.closed)
+
+    def test_persistent_stream_failure_is_bounded_and_does_not_publish(self):
+        with patch.object(self.client, "get_object", side_effect=TimeoutError("https://example.com/?secret=hidden")) as get, \
+                patch.object(sync.time, "sleep"), self.assertRaises(sync.SyncError) as error:
+            self.verify()
+        self.assertLessEqual(get.call_count, 3 * sync.READBACK_WORKERS)
+        self.assertIn("TimeoutError", str(error.exception))
+        self.assertNotIn("hidden", str(error.exception))
 
 
 class DiscoveryTests(unittest.TestCase):

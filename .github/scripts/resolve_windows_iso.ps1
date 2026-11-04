@@ -24,12 +24,17 @@ if (-not ($batchFirstUrl -is [string]) -or -not $batchFirstUrl.StartsWith("https
 $batchResults[$batchLanguages[0].code] = $batchFirstUrl
 
 foreach ($batchLanguage in ($batchLanguages | Select-Object -Skip 1)) {
-    # Each language needs separate x64 and ARM API calls. Pace the batch rather
-    # than issuing a burst of download-link requests to Microsoft's Sentinel.
+    # Pace the batch rather than issuing a burst of download-link requests.
     Start-Sleep -Seconds 20
     $batchMatches = @($languages | Where-Object { $_.Name -match $batchLanguage.pattern })
     if ($batchMatches.Count -ne 1) { throw "Microsoft language selection is not unique: $($batchLanguage.code)" }
-    $batchOptions = @(Get-Windows-Download-Links $winVersionId $winReleaseId $winEditionId $batchMatches[0])
+    # The reviewed Fido pin puts the x64 product first (session 0), ARM second.
+    # Avoid failing an amd64 publication because an unrequested ARM SKU is denied.
+    $batchX64Language = [PSCustomObject]@{
+        Data = @($batchMatches[0].Data | Where-Object { $_.SessionIndex -eq 0 })
+    }
+    if ($batchX64Language.Data.Count -ne 1) { throw "Microsoft did not return one x64 SKU for $($batchLanguage.code)" }
+    $batchOptions = @(Get-Windows-Download-Links $winVersionId $winReleaseId $winEditionId $batchX64Language)
     $batchX64 = @($batchOptions | Where-Object { $_.Arch -eq "x64" })
     if ($batchX64.Count -ne 1) { throw "Fido did not return one x64 ISO for $($batchLanguage.code)" }
     $batchResults[$batchLanguage.code] = $batchX64[0].Url

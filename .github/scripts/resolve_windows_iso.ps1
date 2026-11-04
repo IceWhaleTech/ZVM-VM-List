@@ -15,15 +15,17 @@ $resolvedFidoPath = (Resolve-Path -LiteralPath $FidoPath).Path
 $batchResults = @{}
 
 # Dot-sourcing the pinned Fido CLI retains its SKU data and architecture-specific
-# sessions. Reinitializing that data for every language can be rejected by Sentinel.
+# sessions. Use the same English entry point when resuming a non-English batch.
 $batchFirstUrl = . $resolvedFidoPath -Win "11" -Rel $batchRequest.version -Ed "Home/Pro/Edu" `
-    -Lang $batchLanguages[0].pattern -Arch "^x64$" -PlatformArch "x64" -GetUrl
+    -Lang "^English$" -Arch "^x64$" -PlatformArch "x64" -GetUrl
 if (-not ($batchFirstUrl -is [string]) -or -not $batchFirstUrl.StartsWith("https://")) {
     throw "Fido did not return the first Microsoft ISO URL."
 }
-$batchResults[$batchLanguages[0].code] = $batchFirstUrl
+if ($batchLanguages | Where-Object { $_.code -eq "en-us" }) {
+    $batchResults["en-us"] = $batchFirstUrl
+}
 
-foreach ($batchLanguage in ($batchLanguages | Select-Object -Skip 1)) {
+foreach ($batchLanguage in ($batchLanguages | Where-Object { $_.code -ne "en-us" })) {
     # Pace the batch rather than issuing a burst of download-link requests.
     Start-Sleep -Seconds 20
     $batchMatches = @($languages | Where-Object { $_.Name -match $batchLanguage.pattern })

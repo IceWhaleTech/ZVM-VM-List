@@ -254,6 +254,16 @@ class DiscoveryTests(unittest.TestCase):
         self.assertNotIn("R2_SECRET_ACCESS_KEY", child_env)
         self.assertNotIn("AWS_ACCESS_KEY_ID", child_env)
 
+    def test_missing_configuration_names_only_the_missing_setting(self):
+        with patch.dict(os.environ, {
+            "R2_ACCOUNT_ID": "a" * 32,
+            "R2_ACCESS_KEY_ID": "test-access-key",
+            "R2_SECRET_ACCESS_KEY": "test-secret-not-for-logs",
+        }, clear=True), self.assertRaises(sync.SyncError) as error:
+            sync.create_store(sync.DEFAULT_MANIFEST_KEY)
+        self.assertEqual(str(error.exception), "Missing R2 configuration: R2_BUCKET_NAME")
+        self.assertNotIn("test-secret-not-for-logs", str(error.exception))
+
     def test_iso_inspection_rejects_wrong_arch_language_and_single_edition(self):
         good = {"build": "10.0.26300.9457", "architecture": 9, "languages": ["en-US"], "image_count": 10}
         for field, value in (("architecture", 12), ("languages", ["fr-FR"]), ("image_count", 1), ("build", "26H2")):

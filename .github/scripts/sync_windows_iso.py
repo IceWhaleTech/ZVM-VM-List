@@ -327,8 +327,9 @@ class R2Store:
 
 def create_store(manifest_key):
     names = ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET_NAME")
-    if any(not os.getenv(name, "").strip() for name in names):
-        raise SyncError("Publishing requires R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET_NAME")
+    missing = [name for name in names if not os.getenv(name, "").strip()]
+    if missing:
+        raise SyncError("Missing R2 configuration: " + ", ".join(missing))
     account = os.environ["R2_ACCOUNT_ID"].strip()
     if not re.fullmatch(r"[a-fA-F0-9]{32}", account):
         raise SyncError("R2_ACCOUNT_ID must be your Cloudflare account ID, not the public r2.dev hostname")

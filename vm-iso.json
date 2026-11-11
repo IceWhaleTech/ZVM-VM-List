@@ -223,9 +223,9 @@
         "hash": "",
         "id": "linux-fedora-45",
         "os": "Fedora",
-        "releaseDate": 241001,
+        "releaseDate": 261103,
         "size": 2925092864,
-        "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Workstation/x86_64/iso/Fedora-Workstation-Live-45-1.4.x86_64.iso",
+        "url": "https://mirrors.kernel.org/fedora/releases/45/Workstation/x86_64/iso/Fedora-Workstation-Live-45-1.4.x86_64.iso",
         "version": "45"
     },
     {

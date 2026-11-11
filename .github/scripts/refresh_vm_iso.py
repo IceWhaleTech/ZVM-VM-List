@@ -73,40 +73,41 @@ def pick_latest(items: List[Tuple[str, str]]) -> Optional[Tuple[str, str]]:
 
 
 def resolve_fedora(image: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    # Use the fixed official host for directory listings; the download redirector
-    # can select a mirror that forbids browsing even when an ISO is reachable.
-    base = "https://dl.fedoraproject.org/pub/fedora/linux/releases/"
-    page = fetch_text(base)
-    major_versions = re.findall(r'href="(\d{2})/"', page)
-    if not major_versions:
+    # Pair the GA date with the officially advertised stable version, rather
+    # than using ISO build timestamps or unpublished mirror directories.
+    release_page = fetch_text("https://fedoraproject.org/workstation/download/")
+    version_match = re.search(r"Fedora Workstation\s+(\d+)\s*<", release_page)
+    date_match = re.search(r'RELEASE DATE:\s*<time\b[^>]*\bdatetime="(\d{4}-\d{2}-\d{2})[^\"]*"', release_page)
+    if not version_match or not date_match:
+        raise ValueError("Fedora stable version or release date missing from official download page")
+    release_date = int(datetime.strptime(date_match.group(1), "%Y-%m-%d").strftime("%y%m%d"))
+
+    # Use a direct mirror: the official host can return an Anubis HTML challenge.
+    base = "https://mirrors.kernel.org/fedora/releases/"
+    major = version_match.group(1)
+    iso_dir = f"{base}{major}/Workstation/x86_64/iso/"
+    try:
+        iso_page = fetch_text(iso_dir)
+    except requests.RequestException:
         return None
 
-    # Fedora may publish future version directories before the ISO is available.
-    # Scan versions from newest to oldest and pick the first one with a valid ISO.
-    for major in sorted(set(major_versions), key=lambda x: int(x), reverse=True):
-        iso_dir = f"{base}{major}/Workstation/x86_64/iso/"
-        try:
-            iso_page = fetch_text(iso_dir)
-        except requests.RequestException:
-            continue
+    candidates = []
+    for pattern in (
+        rf'(Fedora-Workstation-Live-x86_64-({major}(?:-\d+\.\d+)?)\.iso)',
+        rf'(Fedora-Workstation-Live-({major}(?:-\d+\.\d+)?)\.x86_64\.iso)',
+    ):
+        candidates.extend(re.findall(pattern, iso_page))
 
-        candidates = []
-        for pattern in (
-            rf'(Fedora-Workstation-Live-x86_64-({major}(?:-\d+\.\d+)?)\.iso)',
-            rf'(Fedora-Workstation-Live-({major}(?:-\d+\.\d+)?)\.x86_64\.iso)',
-        ):
-            candidates.extend(re.findall(pattern, iso_page))
+    if candidates:
+        latest = pick_latest([(name, build) for name, build in candidates])
+        if latest:
+            filename, _ = latest
+            return {"url": iso_dir + filename, "version": major, "releaseDate": release_date}
 
-        if candidates:
-            latest = pick_latest([(name, build) for name, build in candidates])
-            if latest:
-                filename, _ = latest
-                return {"url": iso_dir + filename, "version": major}
-
-        fallback = f"{iso_dir}Fedora-Workstation-Live-x86_64-{major}-1.4.iso"
-        ok, _, _ = http_check_url(fallback)
-        if ok:
-            return {"url": fallback, "version": major}
+    fallback = f"{iso_dir}Fedora-Workstation-Live-x86_64-{major}-1.4.iso"
+    ok, _, _ = http_check_url(fallback)
+    if ok:
+        return {"url": fallback, "version": major, "releaseDate": release_date}
 
     return None
 

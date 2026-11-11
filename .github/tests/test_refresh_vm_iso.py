@@ -209,20 +209,41 @@ class RefreshTests(unittest.TestCase):
     def test_fedora_supports_both_filename_layouts(self):
         for filename in ("Fedora-Workstation-Live-x86_64-45-1.4.iso", "Fedora-Workstation-Live-45-1.4.x86_64.iso"):
             with self.subTest(filename=filename), patch.object(refresh, "fetch_text", side_effect=[
-                '<a href="45/">45</a>', f'<a href="{filename}">ISO</a>',
+                '<h1>Fedora Workstation 45</h1>RELEASE DATE: <time datetime="2026-11-03T14:00:00.000Z">date</time>',
+                f'<a href="{filename}">ISO</a>',
             ]):
                 candidate = refresh.resolve_fedora({})
             self.assertEqual(candidate["version"], "45")
+            self.assertEqual(candidate["releaseDate"], 261103)
+            self.assertTrue(candidate["url"].startswith("https://mirrors.kernel.org/fedora/releases/45/"))
             self.assertTrue(candidate["url"].endswith(filename))
 
-    def test_fedora_skips_unpublished_future_directory(self):
+    def test_fedora_only_uses_official_stable_version(self):
         filename = "Fedora-Workstation-Live-45-1.4.x86_64.iso"
         with patch.object(refresh, "fetch_text", side_effect=[
-            '<a href="45/">45</a><a href="46/">46</a>',
-            refresh.requests.HTTPError("not released"), f'<a href="{filename}">ISO</a>',
-        ]):
+            '<h1>Fedora Workstation 45</h1>RELEASE DATE: <time datetime="2026-11-03">date</time>',
+            f'<a href="{filename}">ISO</a><a href="Fedora-Workstation-Live-46-1.4.x86_64.iso">future</a>',
+        ]) as fetch:
             candidate = refresh.resolve_fedora({})
         self.assertEqual(candidate["version"], "45")
+        self.assertEqual(candidate["releaseDate"], 261103)
+        self.assertIn("/releases/45/", fetch.call_args.args[0])
+
+    def test_fedora_rejects_missing_release_date(self):
+        with patch.object(refresh, "fetch_text", return_value='<h1>Fedora Workstation 45</h1>'):
+            with self.assertRaisesRegex(ValueError, "release date missing"):
+                refresh.resolve_fedora({})
+
+    def test_fedora_date_is_updated_when_iso_url_is_unchanged(self):
+        image = linux_image()
+        image.update({"os": "Fedora", "id": "linux-fedora-45", "version": "45", "releaseDate": 241001})
+        with patch.object(refresh, "load_windows_manifest", return_value=None), \
+                patch.object(refresh, "http_check_url", return_value=(True, 100, "ok")), \
+                patch.object(refresh, "resolve_image", return_value={"url": image["url"], "version": "45", "releaseDate": 261103}):
+            result = refresh.refresh_images([image], check_latest=True)
+        self.assertEqual(image["releaseDate"], 261103)
+        self.assertEqual(result["updated"], 1)
+        self.assertEqual(result["failed"], 0)
 
     def test_mint_selects_latest_stable_cinnamon_across_major_versions(self):
         with patch.object(refresh, "fetch_text", side_effect=[
